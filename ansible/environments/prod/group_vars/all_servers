@@ -1,0 +1,5 @@
+remote_project_user: mailkeeper
+remote_user_home_dir: "/home/{{ remote_project_user }}/"
+remote_project_path: "{{ remote_user_home_dir }}mailkeeper/"
+remote_django_app_path: "{{ remote_project_path }}mailkeeper/"
+remote_project_virtualenv: "{{ remote_user_home_dir }}.virtualenvs/mailkeeper/"

@@ -2,3 +2,5 @@
 *.pyc
 local_settings.py
 local_config.py
+ansible/group_vars/all
+ansible/environments/dev

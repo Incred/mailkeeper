@@ -1,0 +1,42 @@
+---
+# Push the code project to the remote server
+
+- name: Set variables
+  hosts: localhost
+  connection: local
+  tasks:
+  - name: Set variables
+    command:
+      chdir: "{{ local_project_path }}"
+      cmd: "git rev-parse HEAD"
+    register: head_hash
+
+  - name: Set date-hash variable
+    command:
+      cmd: "echo {{ ansible_date_time.date }}-{{ head_hash.stdout }}"
+    register: date_hash
+
+  - name: Check if repo archive exists
+    stat:
+      path: "{{ local_tmp_path }}{{ project_name }}-git-build-{{ date_hash.stdout }}.tgz"
+    register: local_repo_archive
+
+  - name: Empty directory to clone repo
+    file:
+      path: "{{ local_tmp_path }}{{ project_name }}"
+      state: absent
+
+  - name: Create repo archive
+    git:
+      archive: "{{ local_tmp_path }}{{ project_name }}-git-build-{{ date_hash.stdout }}.tgz"
+      repo: "{{ local_project_path }}"
+      dest: "{{ local_tmp_path }}{{ project_name }}"
+    when: not local_repo_archive.stat.exists
+
+
+- name: Upload the code and install requirements
+  hosts:
+    - srv2
+
+  roles:
+    - upload_project_code

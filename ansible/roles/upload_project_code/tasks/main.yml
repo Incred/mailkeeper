@@ -1,0 +1,45 @@
+---
+
+- stat:
+    path: "{{ remote_user_home_dir }}{{ project_name }}.old"
+  register: old_project_directory
+
+- name: Remove old project directory
+  become: yes
+  file:
+    path: "{{ old_project_directory }}"
+    state: absent
+  when: old_project_directory.stat.isdir is defined and old_project_directory.stat.isdir
+
+- stat:
+    path: "{{ remote_project_path }}"
+  register: project_directory_exists
+
+- name: Backup code directory
+  become: yes
+  become_user: "{{ remote_project_user }}"
+  command:
+    cmd: mv "{{ remote_project_path }}" "{{ remote_user_home_dir }}{{ project_name }}.old"
+    creates: "{{ remote_user_home_dir }}{{ project_name }}.old"
+  when: project_directory_exists.stat.exists
+
+- name: Create project directory
+  become: yes
+  become_user: "{{ remote_project_user }}"
+  file:
+    path: "{{ remote_project_path }}"
+    state: directory
+
+- name: Unpack repository
+  become: yes
+  become_user: "{{ remote_project_user }}"
+  unarchive:
+    src: "{{ local_tmp_path }}{{ project_name }}-git-build-{{ hostvars['localhost'].date_hash.stdout }}.tgz"
+    dest: "{{ remote_project_path }}"
+
+- name: Pip install
+  become: yes
+  become_user: "{{ remote_project_user }}"
+  pip:
+    requirements: "{{ remote_project_path }}requirements.pip"
+    virtualenv: "{{ remote_project_virtualenv }}"
