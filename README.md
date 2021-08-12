@@ -13,10 +13,12 @@ applicationserver using webhook.
     local_project_path: "/home/user123/project/mailkeeper/"
     local_tmp_path: "/tmp/"
 ```
-- create dev environment (if needed) with inventory file:
+- create dev environment (if needed) directory with inventory file:
+```
  *environments/dev/*
  *environments/dev/hosts.yml* - inventory file
  *environments/dev/group_vars/all_servers* - env variables
+```
 
-- run *ansible-playbook push-code.yml -K --user <username>* to upload
-the project to server (host srv2 in the example)
+- to upload the project to server (host srv2 in the example) run:
+`ansible-playbook push-code.yml -K --user <username>`
