@@ -1,5 +1,11 @@
+from base64 import b64decode
+import logging
+
 from django.contrib import admin
+from django.utils.html import mark_safe
 from mailkeeper.models import Email, Outbound, Inbound
+
+logger = logging.getLogger(__name__)
 
 
 class EmailBase(admin.ModelAdmin):
@@ -17,9 +23,22 @@ class EmailBase(admin.ModelAdmin):
 
 
 class OutboundAdmin(EmailBase):
+    readonly_fields = ('created', 'sender', 'recipient', 'subject',
+                       'raw_content', 'content')
+    fields = ('sender', 'recipient', 'created', 'subject', 'content')
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.exclude(inbound=True).exclude(bounced=True)
+
+    def content(self, obj):
+        content = obj.body
+        try:
+            content = mark_safe(b64decode(content).decode())
+        except Exception as exception:
+            logger.error('Failed to decode body: {}'.format(exception))
+        return content
+
 
 
 class InboundAdmin(EmailBase):
