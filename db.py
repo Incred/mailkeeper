@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy import Column, Integer, String, Boolean, Text, DateTime, func
 
-from mailkeeper.lib import asynccontextmanager
+from lib import asynccontextmanager
 
 Base = declarative_base()
 
