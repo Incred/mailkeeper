@@ -41,3 +41,15 @@ class Inbound(Email):
 
     class Meta:
         proxy = True
+
+
+class AuthRouter:
+    # This router is to make it possible to send all auth queries to old
+    # db and the rest to default one
+    route_app_labels = {'admin', 'mailkeeper', 'auth'}
+
+    def db_for_read(self, model, **hints):
+        if (model._meta.app_label in self.route_app_labels and
+                model._meta.db_table != 'mailkeeper_email'):
+            return 'main'
+        return None

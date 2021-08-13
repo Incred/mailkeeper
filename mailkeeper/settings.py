@@ -21,7 +21,7 @@ DATABASES = {
         'PORT': '',
     }
 }
-DATABASE_ROUTERS = ['mailkeeper.db.AuthRouter']
+DATABASE_ROUTERS = ['mailkeeper.models.AuthRouter']
 
 INSTALLED_APPS = (
     'django.contrib.auth',
