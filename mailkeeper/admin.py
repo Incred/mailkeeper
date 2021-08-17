@@ -1,11 +1,11 @@
-from base64 import b64decode
-import logging
-
 from django.contrib import admin
-from django.utils.html import mark_safe
+from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
+from django.template.loader import render_to_string
+from django.conf.urls import url
+
 from mailkeeper.models import Email, Outbound, Inbound
 
-logger = logging.getLogger(__name__)
 
 
 class EmailBase(admin.ModelAdmin):
@@ -32,12 +32,22 @@ class OutboundAdmin(EmailBase):
         return qs.exclude(inbound=True).exclude(bounced=True)
 
     def content(self, obj):
-        content = obj.body
-        try:
-            content = mark_safe(b64decode(content).decode())
-        except Exception as exception:
-            logger.error('Failed to decode body: {}'.format(exception))
-        return content
+        return render_to_string('admin/email_iframe.html', {'email': obj})
+
+    def get_urls(self):
+        urls = super().get_urls()
+        urls.extend([
+            url(r'^email-content/(?P<email_id>\d+)$',
+                self.admin_site.admin_view(self.email_content_view),
+                name='email_content')
+        ])
+        return urls
+
+    def email_content_view(self, request, email_id):
+        email = get_object_or_404(Outbound, id=email_id)
+        return TemplateResponse(request, "admin/email_content.html",
+                                {'email': email})
+
 
 
 

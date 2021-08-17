@@ -1,8 +1,11 @@
+from base64 import b64decode
+import logging
+
 from django.db import models
 from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager,
                                         PermissionsMixin)
 
-# Create your models here.
+logger = logging.getLogger(__name__)
 
 
 class Email(models.Model):
@@ -14,6 +17,15 @@ class Email(models.Model):
     raw_content = models.TextField()
     inbound = models.BooleanField(default=False)
     bounced = models.BooleanField(default=False)
+
+    @property
+    def body_decoded(self):
+        content = self.body
+        try:
+            content = b64decode(content).decode()
+        except Exception as exception:
+            logger.error('Failed to decode body: {}'.format(exception))
+        return content
 
 
 class User(AbstractBaseUser, PermissionsMixin):
