@@ -1,0 +1,20 @@
+DB_CONNECTION = {
+    'HOST': '127.0.0.1',
+    'PORT': 5432,
+    'USER': '{{ remote_project_user }}',
+    'PASSWORD': '{{ user_db_password }}',
+    'DATABASE': '{{ mail_db_name }}',
+}
+BOUNCED_EMAIL_DOMAIN = '{{ bounce_domain }}'
+INBOUND_EMAIL_DOMAIN = '{{ reply_domain }}'
+
+INBOUND_URL = '{{ inbound_url }}'
+BOUNCED_URL = '{{ bounced_url }}'
+
+WEBHOOK_INBOUND_KEY = b'{{ webhook_inbound_key }}'
+WEBHOOK_BOUNCES_KEY = b'{{ webhook_bounces_key }}'
+
+IGNORE_EMAIL_LIST = ('{{ remote_project_user }}@{{ bounce_domain }}',)
+X_MAILKEEPER_HEADER = '{{ mailkeeper_http_header }}'
+
+QUEUE_NAME = '{{ rabbitmq_queue_name }}'

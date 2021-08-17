@@ -1,0 +1,92 @@
+---
+# Deploy mailkeeper application
+
+- name: Install packages (postfix, rabbitmq)
+  hosts:
+    - srv1
+    - srv2
+  roles:
+    - postfix_install
+    - rabbitmq_install
+
+- name: DB configure
+  hosts:
+    - srv2
+  roles:
+    - db_configure
+
+- name: Configure services
+  hosts:
+    - srv1
+    - srv2
+  roles:
+    - rabbitmq_configure
+    - postfix_configure
+
+- name: Rabbitmq start
+  hosts:
+    - srv1
+    - srv2
+  tasks:
+    - name: Rabbitmq service enable and start
+      become: yes
+      service:
+        name: rabbitmq-server
+        state: started
+        enabled: yes
+
+- name: Ensures var and requirements dirs exist
+  hosts:
+    - srv1
+    - srv2
+  tasks:
+    - become: yes
+      become_user: "{{ remote_project_user }}"
+      file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - "{{ remote_user_home_dir }}"
+        - "{{ remote_project_path }}requirements"
+
+- name: Copy mailkeeper local_config file
+  hosts:
+    - srv1
+    - srv2
+  tasks:
+    - become: yes
+      become_user: "{{ remote_project_user }}"
+      no_log: true
+      template:
+        src: templates/mailkeeper/local_mailkeeper_config.py.j2
+        dest: "{{ remote_user_home_dir }}var/local_mailkeeper_config.py"
+        owner: "{{ remote_project_user }}"
+        group: "{{ remote_project_user }}"
+
+- name: Create virtualenv and install common dependencies
+  hosts:
+    - srv1
+    - srv2
+  tasks:
+    - become: yes
+      become_user: "{{ remote_project_user }}"
+      copy:
+        src: "{{ local_project_path }}requirements/common.pip"
+        dest: "{{ remote_project_path }}requirements/common.pip"
+        owner: "{{ remote_project_user }}"
+        group: "{{ remote_project_user }}"
+        mode: '0644'
+
+    - become: yes
+      become_user: "{{ remote_project_user }}"
+      pip:
+        requirements: "{{ remote_project_path }}requirements/common.pip"
+        virtualenv: "{{ remote_project_virtualenv }}"
+        virtualenv_python: /usr/bin/python3
+
+- name: Configure django application, consumer job and systemd services
+  hosts:
+    - srv2
+  roles:
+    - mailkeeper_configure
+

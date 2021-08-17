@@ -1,0 +1,24 @@
+---
+
+- name: Install PostgreSQL-server and dependencies
+  become: yes
+  apt:
+    pkg:
+      - postgresql-12
+      - python3-psycopg2
+    state: present
+
+- name: Create DB user
+  become: yes
+  become_user: postgres
+  no_log: True
+  postgresql_user:
+    name: "{{ remote_project_user }}"
+    password: "{{ user_db_password }}"
+
+- name: Create DB
+  become: yes
+  become_user: postgres
+  postgresql_db:
+    name: "{{ mail_db_name }}"
+    owner: "{{ remote_project_user }}"

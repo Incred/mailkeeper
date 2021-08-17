@@ -1,0 +1,17 @@
+[Unit]
+Description=Service which process emails stored in rabbitmq queue
+Requires=postgresql.service
+Requires=rabbitmq-server.service
+After=postgresql.service
+
+[Service]
+User={{ remote_project_user }}
+Group={{ remote_project_user }}
+Environment="PYTHONPATH={{ remote_project_path }}"
+Environment="LOCAL_SETTINGS={{ remote_user_home_dir }}var/local_mailkeeper_config.py"
+WorkingDirectory={{ remote_django_app_path }}
+ExecStart={{ remote_project_virtualenv }}bin/python {{ remote_project_path }}consumer.py
+
+[Install]
+WantedBy=multi-user.target
+

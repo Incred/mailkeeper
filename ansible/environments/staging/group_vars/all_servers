@@ -1,0 +1,31 @@
+remote_project_user: mailkeeper
+remote_user_home_dir: "/home/{{ remote_project_user }}/"
+remote_project_path: "{{ remote_user_home_dir }}mailkeeper/"
+remote_django_app_path: "{{ remote_project_path }}mailkeeper/"
+remote_project_virtualenv: "{{ remote_user_home_dir }}.virtualenvs/mailkeeper/"
+remote_tmp_path: "/tmp/"
+
+local_settings_file_path: "{{ remote_user_home_dir }}var/local_mailkeeper_django_settings.py"
+
+# if there is a main Django project with own db, this db contains users to authenticate
+db_name: mydb
+
+mail_db_name: mailkeeper
+user_db_password: "123456"
+gunicorn_bind_address: "192.168.122.102:8003"
+
+#mailkeeper variables
+local_config_file_path: "{{ remote_user_home_dir }}var/local_mailkeeper_config.py"
+bounce_domain: "bounce.example.com"
+verp_domain_regex: "(reply\\.)?example\\.com"
+domain: "example.com"
+old_domain: "example.com"
+reply_domain: "reply.example.com"
+
+inbound_url: "http://192.168.122.101:8000/inbound/"
+bounced_url: "http://192.168.122.101:8000/bounces/"
+
+webhook_inbound_key: "qwerqwerqwerqwerqwerqw"
+webhook_bounces_key: "qwerqwerqwerqwerqwerqw"
+
+mailkeeper_http_header: "X-MAILKEEPER-SIGNATURE"

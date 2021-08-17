@@ -1,0 +1,60 @@
+---
+
+- name: Copy postfix config files
+  become: yes
+  template:
+    src: templates/postfix_common/{{ item }}.j2
+    dest: /etc/postfix/{{ item }}
+    owner: root
+    group: root
+    mode: '0644'
+    backup: yes
+  loop:
+    - append_verp.pcre
+    - main.cf
+    - master.cf
+    - transport_maps
+    - filter.sh
+    - relay_by_sender
+    - header_checks
+    - virtual
+  notify:
+    - Run postmap
+    - Reload postfix
+
+- name: Ensures {{ remote_project_path }} dir exists
+  become: yes
+  become_user: "{{ remote_project_user }}"
+  file:
+    path: "{{ remote_project_path }}"
+    state: directory
+
+- name: Copy publisher.py script and config
+  become: yes
+  become_user: "{{ remote_project_user }}"
+  copy:
+    src: "{{ local_project_path }}{{ item }}"
+    dest: "{{ remote_project_path }}{{ item }}"
+    owner: "{{ remote_project_user }}"
+    group: "{{ remote_project_user }}"
+    mode: '0644'
+  loop:
+    - publisher.py
+    - config.py
+
+- name: Change file ownership, group and permissions
+  become: yes
+  ansible.builtin.file:
+    path: /etc/postfix/filter.sh
+    owner: "{{ remote_project_user }}"
+    group: "{{ remote_project_user }}"
+    mode: "0744"
+
+- name: Create inspect directory for filter.sh transport
+  become: yes
+  ansible.builtin.file:
+    path: /var/spool/postfix/filter
+    owner: "{{ remote_project_user }}"
+    group: "{{ remote_project_user }}"
+    mode: "0744"
+    state: directory

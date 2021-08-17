@@ -1,0 +1,21 @@
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': '{{ mail_db_name }}',
+        'USER': '{{ remote_project_user }}',
+        'PASSWORD': '{{ user_db_password }}',
+        'HOST': '',
+        'PORT': '',
+    },
+    'main': {
+        'NAME': '{{ db_name }}',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'USER': '{{ remote_project_user }}',
+        'PASSWORD': '{{ user_db_password }}',
+        'HOST': '',
+        'PORT': '',
+    }
+}
+TIME_ZONE = 'Africa/Johannesburg'
+ALLOWED_HOSTS = ['www.{{ domain }}', 'www.{{ old_domain }}', 'mailkeeper.{{ domain }}']
+SECRET_KEY = 'cc92jyh+nq-xn%$u_kr8ewfk5zcq3ah(4ruj+0p7%944@w=ndc'

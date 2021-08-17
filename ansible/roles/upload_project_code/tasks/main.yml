@@ -41,5 +41,6 @@
   become: yes
   become_user: "{{ remote_project_user }}"
   pip:
-    requirements: "{{ remote_project_path }}requirements.pip"
+    requirements: "{{ remote_project_path }}requirements/django.pip"
     virtualenv: "{{ remote_project_virtualenv }}"
+    virtualenv_python: /usr/bin/python3

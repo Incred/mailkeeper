@@ -1,0 +1,12 @@
+---
+
+- name: Install Postfix
+  become: yes
+  apt:
+    pkg:
+      - postfix
+      - postfix-pcre
+      - postfix-policyd-spf-perl
+      - opendkim
+      - opendkim-tools
+    state: present

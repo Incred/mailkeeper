@@ -1,0 +1,14 @@
+- name: Run postmap
+  become: yes
+  command: postmap /etc/postfix/{{ item }}
+  loop:
+    - transport_maps
+    - relay_by_sender
+    - virtual
+
+- name: Reload postfix
+  become: yes
+  systemd:
+    name: postfix
+    state: reloaded
+    daemon_reload: yes

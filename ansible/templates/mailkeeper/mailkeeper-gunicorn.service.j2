@@ -1,0 +1,15 @@
+[Unit]
+Description=Gunicorn instance to serve Afristay
+After=network.target
+
+[Service]
+User={{ remote_project_user }}
+Group={{ remote_project_user }}
+WorkingDirectory={{ remote_django_app_path }}
+Environment="PATH={{ remote_project_virtualenv }}bin"
+Environment="PYTHONPATH={{ remote_project_path }}"
+Environment="LOCAL_SETTINGS={{ remote_user_home_dir }}var/local_mailkeeper_django_settings.py"
+ExecStart={{ remote_project_virtualenv }}bin/gunicorn  --config /etc/gunicorn.mailkeeper.conf mailkeeper.wsgi:application
+
+[Install]
+WantedBy=multi-user.target

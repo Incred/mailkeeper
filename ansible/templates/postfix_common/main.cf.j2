@@ -1,0 +1,65 @@
+smtpd_banner = $myhostname ESMTP $mail_name (Ubuntu)
+biff = no
+
+# appending .domain is the MUA's job.
+append_dot_mydomain = no
+
+readme_directory = no
+
+# See http://www.postfix.org/COMPATIBILITY_README.html -- default to 2 on
+# fresh installs.
+compatibility_level = 2
+
+# TLS parameters
+# Both certificate filename and key filename start with the domain
+smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
+smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
+smtpd_use_tls=yes
+smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+
+smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination reject_unauth_destination check_policy_service unix:private/policy-spf
+
+mydomain = {{ domain }}
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+
+myorigin = $myhostname
+mydestination = localhost.localdomain, localhost, $myhostname
+    {{ bounce_domain }}, {{ reply_domain }}
+mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
+mailbox_size_limit = 0
+recipient_delimiter = +
+inet_interfaces = all
+
+home_mailbox = Mailbox
+
+smtputf8_enable = yes
+# enable SASL authentication
+smtp_sasl_auth_enable = no
+smtpd_sasl_path = private/auth
+smtpd_sasl_type = dovecot
+smtp_sasl_security_options = noanonymous
+# use STARTTLS for encryption
+smtp_use_tls = yes
+
+sender_dependent_default_transport_maps = hash:/etc/postfix/relay_by_sender
+
+transport_maps = hash:/etc/postfix/transport_maps
+header_checks = pcre:/etc/postfix/header_checks
+
+virtual_alias_maps = hash:/etc/postfix/virtual
+
+smtpd_command_filter = pcre:/etc/postfix/append_verp.pcre
+smtpd_authorized_verp_clients = $mynetworks
+
+# A sender-dependent override for the global default_transport parameter setting. The tables are searched by the envelope sender address and @domain.
+message_size_limit = 51200000
+# DKIM
+milter_default_action = accept
+milter_protocol = 2
+smtpd_milters = inet:localhost:8891
+non_smtpd_milters = inet:localhost:8891
+policy-spf_time_limit = 3600s
+
+export_environment = TZ MAIL_CONFIG LANG LOCAL_SETTINGS={{ remote_user_home_dir }}var/local_mailkeeper_config.py

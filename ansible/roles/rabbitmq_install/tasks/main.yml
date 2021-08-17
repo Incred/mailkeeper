@@ -1,0 +1,75 @@
+---
+# Install dependencies
+
+- name: Install Essential Dependencies
+  become: yes
+  apt:
+    pkg:
+      - curl
+      - gnupg
+      - debian-keyring
+      - debian-archive-keyring
+      - apt-transport-https
+    state: present
+
+- name: "Team RabbitMQ's main signing key"
+  become: yes
+  apt_key:
+    keyserver: hkps://keys.openpgp.org
+    id: "0x0A9AF2115F4687BD29803A206B73A36E6026DFCA"
+
+- name: "Cloudsmith: modern Erlang repository"
+  become: yes
+  apt_key:
+    url: https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-erlang/gpg.E495BB49CC4BBE5B.key
+    state: present
+
+- name: "Cloudsmith: RabbitMQ repository"
+  become: yes
+  apt_key:
+    url: https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.9F4587F226208342.key
+    state: present
+
+- name: "Add apt repositories maintained by Team RabbitMQ"
+
+  become: yes
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+    filename: rabbitmq.list
+  loop:
+      ## Provides modern Erlang/OTP releases
+      - deb https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-erlang/deb/ubuntu bionic main
+      - deb-src https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-erlang/deb/ubuntu bionic main
+      ## Provides RabbitMQ
+      - deb https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu bionic main
+      - deb-src https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu bionic main
+
+- name: "Install Erlang packages"
+  become: yes
+  apt:
+    pkg:
+      - erlang-base
+      - erlang-asn1
+      - erlang-crypto
+      - erlang-eldap
+      - erlang-ftp
+      - erlang-inets
+      - erlang-mnesia
+      - erlang-os-mon
+      - erlang-parsetools
+      - erlang-public-key
+      - erlang-runtime-tools
+      - erlang-snmp
+      - erlang-ssl
+      - erlang-syntax-tools
+      - erlang-tftp
+      - erlang-tools
+      - erlang-xmerl
+    update_cache: yes
+
+- name: "Install rabbitmq-server and its dependencies"
+  become: yes
+  apt:
+    pkg:
+      - rabbitmq-server

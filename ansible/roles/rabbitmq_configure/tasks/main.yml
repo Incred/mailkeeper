@@ -1,0 +1,43 @@
+---
+
+- name: Create rabbitmq user
+  become: yes
+  no_log: true
+  rabbitmq_user:
+    user: "{{ rabbitmq_user }}"
+    password: "{{ rabbitmq_user_password }}"
+    tags: management
+    vhost: /
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+    state: present
+
+- name: Enable rabbitmq_management plugin
+  become: yes
+  rabbitmq_plugin:
+    names: rabbitmq_management
+    state: enabled
+
+- name: Create rabbitmq queue
+  become: yes
+  rabbitmq_queue:
+    name: "{{ rabbitmq_queue_name }}"
+
+- name: Enable shovel rabbitmq plugins
+  become: yes
+  rabbitmq_plugin:
+    names: rabbitmq_shovel,rabbitmq_shovel_management
+    state: enabled
+  when: not main_rabbit
+
+- name: Add forwarding queues
+  # Use empty space in value as workaround (https://github.com/ansible/ansible/issues/43027)
+  become: yes
+  no_log: true
+  rabbitmq_parameter:
+    component: shovel
+    name: forwarding
+    value: ' {"src-protocol": "amqp091", "src-uri": "amqp://", "src-queue": "{{ rabbitmq_queue_name }}", "dest-protocol": "amqp091", "dest-uri": "amqp://{{ rabbitmq_user }}:{{ rabbitmq_user_password }}@{{ main_rabbit_srv_ip }}?sasl=plain", "dest-queue": "{{ rabbitmq_queue_name }}"}'
+    state: present
+  when: not main_rabbit

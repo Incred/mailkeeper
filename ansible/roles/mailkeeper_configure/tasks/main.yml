@@ -1,0 +1,80 @@
+---
+
+- name: Copy django local_settings file
+  become: yes
+  become_user: "{{ remote_project_user }}"
+  no_log: true
+  template:
+    src: templates/mailkeeper/local_mailkeeper_django_settings.py.j2
+    dest: "{{ local_settings_file_path }}"
+    owner: "{{ remote_project_user }}"
+    group: "{{ remote_project_user }}"
+
+- name: Migrate
+  become: yes
+  become_user: "{{ remote_project_user }}"
+  command:
+    cmd: "{{ remote_project_virtualenv }}bin/django-admin migrate {{ item }}"
+    chdir: "{{ remote_django_app_path }}"
+  environment:
+    PYTHONPATH: "{{ remote_project_path }}"
+    LOCAL_SETTINGS: "{{ local_settings_file_path }}"
+    DJANGO_SETTINGS_MODULE: mailkeeper.settings
+  loop:
+    - mailkeeper
+    - sessions
+    - contenttypes
+
+- name: Create gunicorn config
+  become: yes
+  template:
+    src: templates/mailkeeper/gunicorn.mailkeeper.conf.j2
+    dest: /etc/gunicorn.mailkeeper.conf
+    owner: root
+    group: root
+    mode: 644
+
+- name: Copy consumer.py script and related stuff
+  become: yes
+  become_user: "{{ remote_project_user }}"
+  copy:
+    src: "{{ local_project_path }}{{ item }}"
+    dest: "{{ remote_project_path }}{{ item }}"
+    owner: "{{ remote_project_user }}"
+    group: "{{ remote_project_user }}"
+    mode: "0644"
+  loop:
+    - consumer.py
+    - db.py
+    - handlers.py
+    - lib.py
+    - utils.py
+
+- name: Create consumer systemd service
+  become: yes
+  template:
+    src: templates/mailkeeper/mailkeeper-consumer.service.j2
+    dest: /etc/systemd/system/mailkeeper-consumer.service
+    owner: root
+    group: root
+    mode: 644
+
+- name: Create gunicorn systemd service
+  become: yes
+  template:
+    src: templates/mailkeeper/mailkeeper-gunicorn.service.j2
+    dest: /etc/systemd/system/mailkeeper-gunicorn.service
+    owner: root
+    group: root
+    mode: 644
+
+- name: Enable systemd service and start it
+  become: yes
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+  loop:
+    - mailkeeper-gunicorn
+    - mailkeeper-consumer
