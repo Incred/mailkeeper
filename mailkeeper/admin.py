@@ -1,6 +1,4 @@
 from django.contrib import admin
-from django.shortcuts import get_object_or_404
-from django.template.response import TemplateResponse
 from django.template.loader import render_to_string
 from django.conf.urls import url
 
@@ -32,23 +30,7 @@ class OutboundAdmin(EmailBase):
         return qs.exclude(inbound=True).exclude(bounced=True)
 
     def content(self, obj):
-        return render_to_string('admin/email_iframe.html', {'email': obj})
-
-    def get_urls(self):
-        urls = super().get_urls()
-        urls.extend([
-            url(r'^email-content/(?P<email_id>\d+)$',
-                self.admin_site.admin_view(self.email_content_view),
-                name='email_content')
-        ])
-        return urls
-
-    def email_content_view(self, request, email_id):
-        email = get_object_or_404(Outbound, id=email_id)
-        return TemplateResponse(request, "admin/email_content.html",
-                                {'email': email})
-
-
+        return render_to_string('admin/email_content.html', {'email': obj})
 
 
 class InboundAdmin(EmailBase):

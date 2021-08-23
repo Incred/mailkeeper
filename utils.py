@@ -12,6 +12,10 @@ Take into account multipart messages with text and html content types.
 """
 
 VERP_ADDRESS_RE = re.compile(r'\+(.+)=(.+)@.*')
+MIME_TYPES = {
+    'text': 'text/plain',
+    'html': 'text/html',
+}
 
 
 class EmailParser():
@@ -26,10 +30,11 @@ class EmailParser():
         for part in self.raw_content.walk():
             if part.is_multipart():
                 continue
-            if part.get_content_type() == 'text/plain':
-                self.data['text'] = part.get_payload().replace('\r', '')
-            if part.get_content_type() == 'text/html':
-                self.data['html'] = part.get_payload()
+            for mime_type in MIME_TYPES:
+                if part.get_content_type() == MIME_TYPES[mime_type]:
+                    self.data[mime_type] = MIME_TYPES[mime_type] + '\n'
+                    self.data[mime_type] += part.get_payload().replace('\r',
+                                                                       '')
 
     def _clean_varp(self, to):
         match = VERP_ADDRESS_RE.search(to)

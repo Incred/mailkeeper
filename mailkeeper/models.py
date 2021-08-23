@@ -19,13 +19,20 @@ class Email(models.Model):
     bounced = models.BooleanField(default=False)
 
     @property
+    def content(self):
+        return self.body and self.body.partition('\n')[2]
+
+    @property
     def body_decoded(self):
-        content = self.body
+        content = self.content
         try:
             content = b64decode(content).decode()
         except Exception as exception:
             logger.error('Failed to decode body: {}'.format(exception))
         return content
+
+    def is_html(self):
+        return self.body.partition('\n')[0] == 'text/html'
 
 
 class User(AbstractBaseUser, PermissionsMixin):
