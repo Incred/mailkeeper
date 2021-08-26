@@ -1,2 +1,4 @@
-/^Subject: \[Django\].*$/ FILTER relay:
+/^.*django@{{ domain }}/ FILTER relay:
 /^X-Mailer:.*$/ FILTER relay:
+/^.*logcheck@{{ domain }}/ FILTER relay:
+/^.*root@([a-z]+\.)?{{ domain }}/ FILTER relay:

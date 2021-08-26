@@ -1,3 +1,2 @@
-logcheck@{{ domain }} relay
-@{{ domain }} filter
-@{{ reply_domain }} filter
+@{{ domain }} smtp:[{{ smtp_credentials_host }}]
+@{{ reply_domain }} smtp:[{{ smtp_credentials_host }}]

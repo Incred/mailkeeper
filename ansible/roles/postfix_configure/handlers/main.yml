@@ -5,6 +5,8 @@
     - transport_maps
     - relay_by_sender
     - virtual
+    - sender_bcc_maps
+    - sasl_passwd
 
 - name: Reload postfix
   become: yes

@@ -18,6 +18,8 @@
     - relay_by_sender
     - header_checks
     - virtual
+    - sender_bcc_maps
+    - sasl_passwd
   notify:
     - Run postmap
     - Reload postfix

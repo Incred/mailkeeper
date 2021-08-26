@@ -36,9 +36,10 @@ home_mailbox = Mailbox
 
 smtputf8_enable = yes
 # enable SASL authentication
-smtp_sasl_auth_enable = no
+smtp_sasl_auth_enable = yes
 smtpd_sasl_path = private/auth
 smtpd_sasl_type = dovecot
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
 smtp_sasl_security_options = noanonymous
 # use STARTTLS for encryption
 smtp_use_tls = yes
@@ -50,8 +51,11 @@ header_checks = pcre:/etc/postfix/header_checks
 
 virtual_alias_maps = hash:/etc/postfix/virtual
 
-smtpd_command_filter = pcre:/etc/postfix/append_verp.pcre
+#smtpd_command_filter = pcre:/etc/postfix/append_verp.pcre
 smtpd_authorized_verp_clients = $mynetworks
+
+# to make a copy of each email into Mailbox
+sender_bcc_maps = hash:/etc/postfix/sender_bcc_maps
 
 # A sender-dependent override for the global default_transport parameter setting. The tables are searched by the envelope sender address and @domain.
 message_size_limit = 51200000

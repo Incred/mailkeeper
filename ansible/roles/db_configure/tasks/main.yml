@@ -11,7 +11,6 @@
 - name: Create DB user
   become: yes
   become_user: postgres
-  no_log: True
   postgresql_user:
     name: "{{ remote_project_user }}"
     password: "{{ user_db_password }}"
