@@ -59,6 +59,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
 AUTH_USER_MODEL = 'mailkeeper.User'
+MAX_EMAIL_AGE_DAYS = 90
 
 LOCAL_SETTINGS = os.environ.get(
     'LOCAL_SETTINGS', 'mailkeeper_local_settings.py')
