@@ -4,5 +4,5 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path(r'mailkeeper/admin/', admin.site.urls),
+    path(r'admin/', admin.site.urls),
 ]
