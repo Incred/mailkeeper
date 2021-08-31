@@ -8,6 +8,7 @@ from django.conf.urls import url
 from django.shortcuts import redirect
 
 from mailkeeper.models import Email, Outbound, Inbound
+from mailkeeper.forms import SendEmailForm
 
 
 
@@ -41,6 +42,7 @@ class OutboundAdmin(EmailBase):
             ),
         }),
     )
+    email_form = None
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -53,28 +55,45 @@ class OutboundAdmin(EmailBase):
         extra_context = extra_context or {}
         extra_context['show_save'] = False
         extra_context['show_save_and_continue'] = False
-        if request.POST and '_send_email' in request.POST:
-            recipient = request.POST.get('recipient')
-            email_obj = self.get_object(request, object_id)
+        if not request.POST or '_send_email' not in request.POST:
+            return super().change_view(request, object_id, form_url,
+                                       extra_context)
+        email_obj = self.get_object(request, object_id)
+        email_form = SendEmailForm(request.POST)
+        recipient = None
+        if email_form.is_valid():
+            recipient = email_form.cleaned_data['email']
+        else:
+            message_type = messages.ERROR
+            message_text = ('Email hasn\'t been sent, check the recipient '
+                            ' address.')
+        self.email_form = email_form
+        if recipient:
             try:
-                self.send_email(BaseUserManager.normalize_email(recipient),
-                                email_obj)
+                self.send_email(recipient, email_obj)
                 message_type = messages.SUCCESS
-                message_text = 'Email has been sent.'
+                message_text = 'Email has been sent to {}.'.format(recipient)
             except SMTPException:
                 message_type = messages.ERROR
-                message_text = ('Email hasn\'t been sent. Check recipient '
-                                'address.')
-            messages.add_message(request, message_type, message_text)
-            return redirect('admin:mailkeeper_outbound_change',
-                            object_id=object_id)
-        return super().change_view(request, object_id, form_url, extra_context)
+                message_text = ('Email hasn\'t been sent. Try again later.')
+        return self.redirect_with_message(request, object_id, message_type,
+                                          message_text)
+
+    def redirect_with_message(self, request, obj_id, message_type,
+                              message_text):
+        messages.add_message(request, message_type, message_text)
+        return redirect('admin:mailkeeper_outbound_change', object_id=obj_id)
 
     def log_change(self, request, object, message):
         pass
 
     def send_email_block(self, obj):
-        return render_to_string('admin/send_email.html', {})
+        if self.email_form:
+            context = {'email_form': self.email_form}
+        else:
+            context = {'email_form': SendEmailForm(
+                initial={'email': obj.recipient})}
+        return render_to_string('admin/send_email.html', context)
     send_email_block.short_description = ('Re-send Email')
 
     def send_email(self, recipient, email_obj):
