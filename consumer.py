@@ -23,6 +23,7 @@ class Consumer:
             subject=data['subject'],
             inbound=data['event'] == 'inbound',
             bounced=data['event'] == 'bounced',
+            message_id=data['_id'],
         )
         async with self.db.session() as session:
             session.add(email)

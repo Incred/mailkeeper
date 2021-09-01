@@ -46,3 +46,4 @@ class Email(Base):
     created = Column(DateTime(timezone=True),)
     inbound = Column(Boolean, nullable=True)
     bounced = Column(Boolean, nullable=True)
+    message_id = Column(String(255), nullable=True)

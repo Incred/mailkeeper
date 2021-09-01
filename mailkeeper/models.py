@@ -17,6 +17,7 @@ class Email(models.Model):
     raw_content = models.TextField()
     inbound = models.BooleanField(default=False)
     bounced = models.BooleanField(default=False)
+    message_id = models.EmailField(blank=True)
 
     @property
     def content(self):
