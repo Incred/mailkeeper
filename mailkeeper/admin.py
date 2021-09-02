@@ -13,7 +13,8 @@ from mailkeeper.forms import SendEmailForm
 
 
 class EmailBase(admin.ModelAdmin):
-    list_display = ('created', 'sender', 'recipient', 'subject')
+    list_display = ('created', 'sender', 'recipient', 'subject',
+                    'delivery_status', 'extended_delivery_status')
     search_fields = ('sender', 'recipient', 'subject', 'body')
     readonly_fields = ('created', 'sender', 'recipient', 'subject',
                        'body', 'raw_content')
@@ -25,10 +26,15 @@ class EmailBase(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
+    def delivery_status(self, obj):
+        return obj.status == 'sent'
+    delivery_status.boolean = True
+
 
 class OutboundAdmin(EmailBase):
     readonly_fields = ('created', 'sender', 'recipient', 'subject',
-                       'raw_content', 'content', 'send_email_block')
+                       'raw_content', 'content', 'send_email_block',
+                       'delivery_status', 'extended_delivery_status')
     fields = None
     fieldsets = (
         (None, {
@@ -37,12 +43,17 @@ class OutboundAdmin(EmailBase):
                 ('sender',),
                 ('recipient',),
                 ('send_email_block',),
+                ('delivery_status', 'extended_delivery_status'),
                 ('subject',),
                 ('content',),
             ),
         }),
     )
     email_form = None
+
+    def delivery_status(self, obj):
+        return obj.status == 'sent'
+    delivery_status.boolean = True
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

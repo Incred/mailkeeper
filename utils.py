@@ -1,4 +1,5 @@
 import re
+
 from email import policy, message_from_string
 from email.utils import getaddresses
 import collections.abc
@@ -60,3 +61,42 @@ class EmailParser():
         self.data['_id'] = self.raw_content.get('message-id')
         self.data['raw_content'] = self.raw_content.as_string()
         self._parse_body()
+
+
+class BouncedEmailParser(EmailParser):
+    original_email = None
+    delivery_status_dict = {}
+
+    STATUS_FIELDS = ('Status', 'Action', 'Diagnostic-Code')
+
+    def _parse_body(self):
+        """
+        To get message-id of bounced email we need to parse original email,
+        which is attached to bounce report with content in part with content
+        type "text/rfc822-headers".
+        Then we parse also "message/delivery-status" part (which can be
+        multipart) to obtain extended delivery status (code error and
+        description)
+
+        """
+        super()._parse_body()
+        delivery_status_parts = []
+        for part in self.raw_content.walk():
+            if part.get_content_type() == 'text/rfc822-headers':
+                self.original_email = EmailParser(part.get_payload())
+                self.original_email.parse()
+            if part.get_content_type() == 'message/delivery-status':
+                if part.is_multipart():
+                    delivery_status_parts.extend(part.get_payload())
+                else:
+                    delivery_status_parts.extend([part.get_payload()])
+        for status_part in delivery_status_parts:
+            self.delivery_status_dict.update({
+                key: value for key, value in status_part.items() if key in
+                self.STATUS_FIELDS
+            })
+
+    @property
+    def delivery_status_as_str(self):
+        return '\n'.join(('{}: {}'.format(k, v) for k, v
+                          in self.delivery_status_dict.items()))

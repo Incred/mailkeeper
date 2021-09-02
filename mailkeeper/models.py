@@ -9,6 +9,10 @@ logger = logging.getLogger(__name__)
 
 
 class Email(models.Model):
+    STATUSES = (
+        ('sent', 'Sent'),
+        ('bounced', 'Bounced'),
+    )
     sender = models.EmailField()
     recipient = models.EmailField()
     created = models.DateTimeField(auto_now_add=True)
@@ -18,6 +22,8 @@ class Email(models.Model):
     inbound = models.BooleanField(default=False)
     bounced = models.BooleanField(default=False)
     message_id = models.EmailField(blank=True)
+    status = models.CharField(max_length=12, choices=STATUSES, blank=True)
+    extended_delivery_status = models.CharField(max_length=255, blank=True)
 
     @property
     def content(self):

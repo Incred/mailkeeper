@@ -24,6 +24,8 @@ class Consumer:
             inbound=data['event'] == 'inbound',
             bounced=data['event'] == 'bounced',
             message_id=data['_id'],
+            status='bounced' if data['event'] == 'bounced' else 'sent',
+            extended_delivery_status='',
         )
         async with self.db.session() as session:
             session.add(email)
