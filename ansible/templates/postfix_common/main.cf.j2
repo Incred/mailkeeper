@@ -51,7 +51,7 @@ header_checks = pcre:/etc/postfix/header_checks
 
 virtual_alias_maps = hash:/etc/postfix/virtual
 
-#smtpd_command_filter = pcre:/etc/postfix/append_verp.pcre
+smtpd_command_filter = pcre:/etc/postfix/append_verp.pcre
 smtpd_authorized_verp_clients = $mynetworks
 
 # to make a copy of each email into Mailbox
