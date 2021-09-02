@@ -73,7 +73,8 @@ class MainHandler:
         try:
             bounced_email_parser = BouncedEmailParser(self.data['raw_content'])
             bounced_email_parser.parse()
-            msg_id = bounced_email_parser.original_email.data.get('_id')
+            data = bounced_email_parser.original_email.data
+            msg_id = data.get('_id') if data else None
             delivery_status = bounced_email_parser.delivery_status_as_str
         except Exception as exc:
             log.error('Error during processing bounced: {}'.format(str(exc)))

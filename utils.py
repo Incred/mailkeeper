@@ -64,7 +64,7 @@ class EmailParser():
 
 
 class BouncedEmailParser(EmailParser):
-    original_email = None
+    original_email = EmailParser('')
     delivery_status_dict = {}
 
     STATUS_FIELDS = ('Status', 'Action', 'Diagnostic-Code')
