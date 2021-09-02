@@ -19,3 +19,13 @@ DATABASES = {
 TIME_ZONE = 'Africa/Johannesburg'
 ALLOWED_HOSTS = ['www.{{ domain }}', 'www.{{ old_domain }}', 'mailkeeper.{{ domain }}']
 SECRET_KEY = 'cc92jyh+nq-xn%$u_kr8ewfk5zcq3ah(4ruj+0p7%944@w=ndc'
+
+DEBUG = False
+
+SERVER_EMAIL = "django@{{ domain }}"
+
+ADMINS = (
+{% for name, email in admin_emails.items() %}
+    ('{{ name }}', '{{ email }}'),
+{% endfor %}
+)
