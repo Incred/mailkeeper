@@ -11,6 +11,15 @@ INBOUND_EMAIL_DOMAIN = '{{ reply_domain }}'
 INBOUND_URL = '{{ inbound_url }}'
 BOUNCED_URL = '{{ bounced_url }}'
 
+EVENTS_URLS = {
+    {% if inbound_url %}
+        'inbound': INBOUND_URL,
+    {% endif %}
+    {% if bounced_url %}
+       'bounced': BOUNCED_URL,
+    {% endif %}
+}
+
 WEBHOOK_INBOUND_KEY = b'{{ webhook_inbound_key }}'
 WEBHOOK_BOUNCES_KEY = b'{{ webhook_bounces_key }}'
 

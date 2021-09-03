@@ -32,14 +32,21 @@ QUEUE_NAME = 'inbound'
 LOCAL_SETTINGS = os.environ.get(
     'LOCAL_SETTINGS', 'local_mailkeeper_config.py')
 
-if os.path.exists(LOCAL_SETTINGS):
-    with open(LOCAL_SETTINGS) as local_config:
-        exec(local_config.read())
-
 EVENTS_URLS = {
     'inbound': INBOUND_URL,
     'bounced': BOUNCED_URL,
 }
+
+if os.path.exists(LOCAL_SETTINGS):
+    with open(LOCAL_SETTINGS) as local_config:
+        exec(local_config.read())
+
+if EVENTS_URLS:
+    EVENTS_URLS = {
+        'inbound': INBOUND_URL,
+        'bounced': BOUNCED_URL,
+    }
+
 WEBHOOK_KEYS = {
     'inbound': WEBHOOK_INBOUND_KEY,
     'bounced': WEBHOOK_BOUNCES_KEY,
