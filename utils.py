@@ -20,9 +20,12 @@ MIME_TYPES = {
 
 
 class EmailParser():
-    def __init__(self, content=None):
+    def __init__(self, content=None, raw_content=None):
         self.data = {}
-        self.raw_content = message_from_string(content, policy=policy.default)
+        self.raw_content = raw_content
+        if content is not None:
+            self.raw_content = message_from_string(content,
+                                                   policy=policy.default)
 
     def get_data(self):
         return self.data
@@ -68,12 +71,13 @@ class BouncedEmailParser(EmailParser):
     delivery_status_dict = {}
 
     STATUS_FIELDS = ('Status', 'Action', 'Diagnostic-Code')
+    ORIGINAL_MESSAGE_TYPES = ('text/rfc822-headers', 'message/rfc822')
 
     def _parse_body(self):
         """
         To get message-id of bounced email we need to parse original email,
         which is attached to bounce report with content in part with content
-        type "text/rfc822-headers".
+        type "text/rfc822-headers" or "message/rfc822".
         Then we parse also "message/delivery-status" part (which can be
         multipart) to obtain extended delivery status (code error and
         description)
@@ -82,8 +86,12 @@ class BouncedEmailParser(EmailParser):
         super()._parse_body()
         delivery_status_parts = []
         for part in self.raw_content.walk():
-            if part.get_content_type() == 'text/rfc822-headers':
-                self.original_email = EmailParser(part.get_payload())
+            if part.get_content_type() in self.ORIGINAL_MESSAGE_TYPES:
+                if part.is_multipart():
+                    email = part.get_payload()[0]
+                    self.original_email = EmailParser(raw_content=email)
+                else:
+                    self.original_email = EmailParser(part.get_payload())
                 self.original_email.parse()
             if part.get_content_type() == 'message/delivery-status':
                 if part.is_multipart():
