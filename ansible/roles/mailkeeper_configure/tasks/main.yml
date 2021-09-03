@@ -78,3 +78,12 @@
   loop:
     - mailkeeper-gunicorn
     - mailkeeper-consumer
+
+- name: Creates a crontab task to cleanup old emails
+  become: yes
+  become_user: "{{ remote_project_user }}"
+  cron:
+    name: Cleanup Old Emails
+    minute: "0"
+    hour: "12"
+    job: "PYTHONPATH={{ remote_project_path }} LOCAL_SETTINGS={{ local_settings_file_path }} DJANGO_SETTINGS_MODULE=mailkeeper.settings {{ remote_project_virtualenv }}bin/django-admin cleanup_old_emails"
