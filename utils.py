@@ -1,7 +1,7 @@
 import re
 
 from email import policy, message_from_string
-from email.utils import getaddresses
+from email.utils import getaddresses, unquote
 import collections.abc
 from math import ceil
 
@@ -61,7 +61,7 @@ class EmailParser():
         self.data['to'] = [tos]
         self.data['subject'] = self.raw_content.get('subject')
         self.data['from_email'] = self.raw_content.get('from')
-        self.data['_id'] = self.raw_content.get('message-id')
+        self.data['_id'] = unquote(self.raw_content.get('message-id').strip())
         self.data['raw_content'] = self.raw_content.as_string()
         self._parse_body()
 
