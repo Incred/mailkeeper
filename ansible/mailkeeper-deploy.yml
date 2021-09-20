@@ -5,6 +5,7 @@
   hosts:
     - srv1
     - srv2
+    - srv3
   roles:
     - postfix_install
     - rabbitmq_install
@@ -19,6 +20,7 @@
   hosts:
     - srv1
     - srv2
+    - srv3
   roles:
     - rabbitmq_configure
     - postfix_configure
@@ -27,6 +29,7 @@
   hosts:
     - srv1
     - srv2
+    - srv3
   tasks:
     - name: Rabbitmq service enable and start
       become: yes
@@ -39,6 +42,7 @@
   hosts:
     - srv1
     - srv2
+    - srv3
   tasks:
     - become: yes
       become_user: "{{ remote_project_user }}"
@@ -53,6 +57,7 @@
   hosts:
     - srv1
     - srv2
+    - srv3
   tasks:
     - become: yes
       become_user: "{{ remote_project_user }}"
@@ -67,6 +72,7 @@
   hosts:
     - srv1
     - srv2
+    - srv3
   tasks:
     - become: yes
       become_user: "{{ remote_project_user }}"

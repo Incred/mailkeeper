@@ -10,11 +10,20 @@ local_settings_file_path: "{{ remote_user_home_dir }}var/local_mailkeeper_django
 # if there is a main Django project with own db, this db contains users to authenticate
 db_name: mydb
 
+admin_emails:
+    Admin 1: "admin1@example.com"
+    Admin 2: "admin2@example.com"
+
 mail_db_name: mailkeeper
 user_db_password: "123456"
 gunicorn_bind_address: "192.168.122.102:8003"
 
-#mailkeeper variables
+rabbitmq_user: "{{ remote_project_user }}"
+rabbitmq_user_password: "123456"
+rabbitmq_queue_name: emails
+main_rabbit_srv_ip: 192.168.122.101
+
+# Mailkeeper variables
 local_config_file_path: "{{ remote_user_home_dir }}var/local_mailkeeper_config.py"
 bounce_domain: "bounce.example.com"
 verp_domain_regex: "(reply\\.)?example\\.com"
@@ -22,8 +31,8 @@ domain: "example.com"
 old_domain: "example.com"
 reply_domain: "reply.example.com"
 
-inbound_url: "http://192.168.122.101:8000/inbound/"
-bounced_url: "http://192.168.122.101:8000/bounces/"
+inbound_url: "https://{{ domain }}/inbound/"
+bounced_url: "https://{{ domain }}/bounces/"
 
 webhook_inbound_key: "qwerqwerqwerqwerqwerqw"
 webhook_bounces_key: "qwerqwerqwerqwerqwerqw"
