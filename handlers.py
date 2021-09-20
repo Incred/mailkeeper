@@ -42,7 +42,6 @@ class MainHandler:
             event = 'inbound'
         self.data['event'] = event
         if event is None:
-            log.error('No event selected')
             return
 
         content_json = self._make_json(event, message)
