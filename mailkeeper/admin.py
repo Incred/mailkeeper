@@ -15,7 +15,7 @@ from mailkeeper.forms import SendEmailForm
 class EmailBase(admin.ModelAdmin):
     list_display = ('created', 'sender', 'recipient', 'subject',
                     'delivery_status', 'extended_delivery_status')
-    search_fields = ('sender', 'recipient', 'subject', 'body')
+    search_fields = ('sender', 'recipient', 'subject')
     readonly_fields = ('created', 'sender', 'recipient', 'subject',
                        'body', 'raw_content')
     fields = ('sender', 'recipient', 'created', 'subject', 'body')
