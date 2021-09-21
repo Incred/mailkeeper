@@ -46,12 +46,16 @@ smtp_use_tls = yes
 
 sender_dependent_default_transport_maps = hash:/etc/postfix/relay_by_sender
 
+{% if save_emails %}
+filter_destination_recipient_limit = 1
 transport_maps = hash:/etc/postfix/transport_maps
+smtpd_command_filter = pcre:/etc/postfix/append_verp.pcre
+{% endif %}
+
 header_checks = pcre:/etc/postfix/header_checks
 
 virtual_alias_maps = hash:/etc/postfix/virtual
 
-smtpd_command_filter = pcre:/etc/postfix/append_verp.pcre
 smtpd_authorized_verp_clients = $mynetworks
 
 # to make a copy of each email into Mailbox

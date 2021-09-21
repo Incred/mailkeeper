@@ -23,7 +23,7 @@ EVENTS_URLS = {
 WEBHOOK_INBOUND_KEY = b'{{ webhook_inbound_key }}'
 WEBHOOK_BOUNCES_KEY = b'{{ webhook_bounces_key }}'
 
-IGNORE_EMAIL_LIST = ('{{ remote_project_user }}@{{ bounce_domain }}',)
+IGNORE_EMAIL_LIST = ('{{ remote_project_user }}@{{ bounce_domain }}', '{{ remote_project_user }}@localhost',)
 X_MAILKEEPER_HEADER = '{{ mailkeeper_http_header }}'
 
 QUEUE_NAME = '{{ rabbitmq_queue_name }}'

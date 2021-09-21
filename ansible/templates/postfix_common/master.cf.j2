@@ -18,7 +18,9 @@ smtp      inet  n       -       n       -       -       smtpd
 #  -o syslog_name=postfix/submission
 #  -o smtpd_tls_security_level=encrypt
 #  -o smtpd_sasl_auth_enable=yes
+{% if save_emails %}
   -o content_filter=filter:dummy
+{% endif %}
   -o smtpd_tls_auth_only=yes
 #  -o smtpd_reject_unlisted_recipient=no
 #  -o smtpd_client_restrictions=$mua_client_restrictions
@@ -127,10 +129,11 @@ mailman   unix  -       n       n       -       -       pipe
 policy-spf  unix  -       n       n       -       -       spawn
      user=nobody argv=/usr/sbin/postfix-policyd-spf-perl
 #
-
+{% if save_emails %}
 bounce_transport   unix  -       n       n       -       -       pipe
     flags=FR user={{ remote_project_user }} null_sender=MAILER-DAEMON@{{ domain }} argv={{ remote_project_virtualenv }}bin/python {{ remote_project_path }}publisher.py
 	--sender ${sender} --recipient ${recipient}
 filter    unix  -       n       n       -       10      pipe
-    flags=Rq user={{ remote_project_user }} null_sender=
+    flags=ROq user={{ remote_project_user }} null_sender=
     argv=/etc/postfix/filter.sh -f ${sender} -- ${recipient}
+{% endif %}
