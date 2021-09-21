@@ -57,7 +57,7 @@ class EmailParser():
 
     def parse(self):
         tos = self._get_to()
-        self.data['email'] = tos[0]
+        self.data['email'] = self.raw_content.get('x-original-to') or tos[0]
         self.data['to'] = [tos]
         self.data['subject'] = self.raw_content.get('subject')
         self.data['from_email'] = self.raw_content.get('from')

@@ -5,7 +5,7 @@ import base64
 import hmac
 import hashlib
 from aiohttp_requests import requests
-from sqlalchemy import update
+from sqlalchemy import update, and_
 
 from db import DB, Email
 from utils import EmailParser, BouncedEmailParser
@@ -75,13 +75,15 @@ class MainHandler:
             data = bounced_email_parser.original_email.data
             msg_id = data.get('_id') if data else None
             delivery_status = bounced_email_parser.delivery_status_as_str
+            recipient = data.get('email')
         except Exception as exc:
             log.error('Error during processing bounced: {}'.format(str(exc)))
             raise
         else:
             async with self.db.session() as session:
-                await session.execute(update(Email).where(
-                    Email.message_id == msg_id).values(
+                await session.execute(update(Email).where(and_(
+                    Email.message_id == msg_id,
+                    Email.recipient == recipient)).values(
                         status='bounced',
                         extended_delivery_status=delivery_status,
                     )
