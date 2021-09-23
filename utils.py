@@ -103,7 +103,6 @@ class BouncedEmailParser(EmailParser):
                 else:
                     delivery_status_parts.extend([part.get_payload()])
         for status_part in delivery_status_parts:
-            import pdb
             # In case global-delivery-status part contnains several header
             # blocks separated with a blank line email library parser thinks
             # its a nested message and puts second block of headers into body,
