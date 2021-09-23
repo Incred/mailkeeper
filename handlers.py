@@ -91,7 +91,7 @@ class MainHandler:
                     Email.message_id == msg_id,
                     Email.recipient == recipient)).values(
                         status='bounced',
-                        extended_delivery_status=delivery_status,
+                        extended_delivery_status=delivery_status[:255],
                     )
                 )
 
