@@ -1,6 +1,7 @@
 import re
 
 from email import policy, message_from_string
+from email.parser import Parser
 from email.utils import getaddresses, unquote
 import collections.abc
 from math import ceil
@@ -71,7 +72,10 @@ class BouncedEmailParser(EmailParser):
     delivery_status_dict = {}
 
     STATUS_FIELDS = ('Status', 'Action', 'Diagnostic-Code')
-    ORIGINAL_MESSAGE_TYPES = ('text/rfc822-headers', 'message/rfc822')
+    ORIGINAL_MESSAGE_TYPES = ('text/rfc822-headers', 'message/rfc822',
+                              'message/global', 'message/global-headers')
+    DELIVERY_STATUS_TYPES = ('message/delivery-status',
+                             'message/global-delivery-status')
 
     def _parse_body(self):
         """
@@ -93,12 +97,22 @@ class BouncedEmailParser(EmailParser):
                 else:
                     self.original_email = EmailParser(part.get_payload())
                 self.original_email.parse()
-            if part.get_content_type() == 'message/delivery-status':
+            if part.get_content_type() in self.DELIVERY_STATUS_TYPES:
                 if part.is_multipart():
                     delivery_status_parts.extend(part.get_payload())
                 else:
                     delivery_status_parts.extend([part.get_payload()])
         for status_part in delivery_status_parts:
+            import pdb
+            # In case global-delivery-status part contnains several header
+            # blocks separated with a blank line email library parser thinks
+            # its a nested message and puts second block of headers into body,
+            # so we have to use get_payload() method and parse those headers
+            # as a string
+            payload = status_part.get_payload()
+            if payload:
+                delivery_status_parts.append(
+                    Parser(policy=policy.default).parsestr(payload))
             self.delivery_status_dict.update({
                 key: value for key, value in status_part.items() if key in
                 self.STATUS_FIELDS

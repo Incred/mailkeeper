@@ -23,7 +23,7 @@ class Email(models.Model):
     bounced = models.BooleanField(default=False)
     message_id = models.EmailField(blank=True)
     status = models.CharField(max_length=12, choices=STATUSES, blank=True)
-    extended_delivery_status = models.CharField(max_length=255, blank=True)
+    extended_delivery_status = models.TextField(blank=True)
 
     @property
     def content(self):

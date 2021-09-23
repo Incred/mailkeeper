@@ -48,4 +48,4 @@ class Email(Base):
     bounced = Column(Boolean, nullable=True)
     message_id = Column(String(255), nullable=True)
     status = Column(String(12))
-    extended_delivery_status = Column(String(255))
+    extended_delivery_status = Column(Text)

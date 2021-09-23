@@ -80,6 +80,12 @@ class MainHandler:
             log.error('Error during processing bounced: {}'.format(str(exc)))
             raise
         else:
+            if not all((msg_id, delivery_status)):
+                log.error(
+                    'Both msg_id and delivery_status must not be empty:\n'
+                    'bounced message-id: %s\n'
+                    'delivery_status: %s\n'
+                    'recipient: %s\n', msg_id, delivery_status, recipient)
             async with self.db.session() as session:
                 await session.execute(update(Email).where(and_(
                     Email.message_id == msg_id,
