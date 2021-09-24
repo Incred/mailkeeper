@@ -12,7 +12,7 @@ from utils import EmailParser, BouncedEmailParser
 import config
 
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class MainHandler:
@@ -32,7 +32,6 @@ class MainHandler:
         event = None
         _, recipient_domain = self.recipient.split('@')
         if self.recipient in config.IGNORE_EMAIL_LIST:
-            log.info('Ignore recipient: {}'.format(self.recipient))
             self.data = None
             return
         if recipient_domain == config.BOUNCED_EMAIL_DOMAIN:
@@ -54,11 +53,16 @@ class MainHandler:
                     config.EVENTS_URLS[event],
                     data=data,
                     headers={
-                        config.X_MAILKEEPER_HEADER: self.get_signature(data, event)
+                        config.X_MAILKEEPER_HEADER: self.get_signature(data,
+                                                                       event)
                     }
                 )
+                response_msg = '{} {}'.format(response.status, response.reason)
+                logger.info('%s event handled (Message-ID: %s, Recipient:'
+                            ' %s): %s', event, message['_id'],
+                            message['email'], response_msg)
         except Exception as e:
-            log.error(e)
+            logger.error(e)
             raise
         else:
             self.processed = True
@@ -77,11 +81,11 @@ class MainHandler:
             delivery_status = bounced_email_parser.delivery_status_as_str
             recipient = data.get('email')
         except Exception as exc:
-            log.error('Error during processing bounced: {}'.format(str(exc)))
+            logger.error('Error during processing bounced: %s', exc)
             raise
         else:
             if not all((msg_id, delivery_status)):
-                log.error(
+                logger.error(
                     'Both msg_id and delivery_status must not be empty:\n'
                     'bounced message-id: %s\n'
                     'delivery_status: %s\n'

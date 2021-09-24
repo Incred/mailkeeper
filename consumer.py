@@ -1,11 +1,12 @@
 import json
 import asyncio
 import aio_pika
+import logging
+import logging.config
 from pytz import UTC
 from datetime import datetime
 
 import config
-from handlers import MainHandler
 from db import DB, Email
 
 
@@ -34,6 +35,7 @@ class Consumer:
         # Inbound message handler which uses message.process context manager
         # with requeue=True flag, it means in case of exception the message
         # will be requeued
+        from handlers import MainHandler
         async with message.process(requeue=True):
             msg = json.loads(message.body)
             handler = MainHandler(msg['sender'], msg['recipient'], msg['msg'])
@@ -62,6 +64,9 @@ class Consumer:
 
 
 if __name__ == "__main__":
+    logging.config.dictConfig(config.LOGGING)
+    logger = logging.getLogger(__name__)
+    logger.info('Consumer started')
     consumer = Consumer()
     loop = asyncio.get_event_loop()
     loop.run_until_complete(consumer.main(loop))
@@ -70,3 +75,4 @@ if __name__ == "__main__":
     finally:
         loop.run_until_complete(consumer.close_connections())
         loop.close()
+        logger.info('Consumer stopped')

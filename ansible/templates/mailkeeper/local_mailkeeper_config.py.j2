@@ -27,3 +27,29 @@ IGNORE_EMAIL_LIST = ('{{ remote_project_user }}@{{ bounce_domain }}', '{{ remote
 X_MAILKEEPER_HEADER = '{{ mailkeeper_http_header }}'
 
 QUEUE_NAME = '{{ rabbitmq_queue_name }}'
+
+LOGGING = {
+    'version': 1,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s %(levelname)s %(module)s %(process)d %(message)s'
+         },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'log_main': {
+            'formatter': 'verbose',
+            'class': 'logging.FileHandler',
+            'filename': '{{ remote_user_home_dir }}var/mailkeeper.log',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console', 'log_main'],
+            'level': 'DEBUG',
+        }
+    }
+}

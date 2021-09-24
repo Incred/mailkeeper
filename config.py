@@ -37,6 +37,34 @@ EVENTS_URLS = {
     'bounced': BOUNCED_URL,
 }
 
+LOGGING = {
+    'version': 1,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s %(levelname)s %(module)s %(process)d %(message)s'
+         },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'log_main': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'formatter': 'verbose',
+            'filename': '/tmp/mailkeeper.log',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console', 'log_main'],
+            'level': 'ERROR',
+        }
+    }
+}
+
 if os.path.exists(LOCAL_SETTINGS):
     with open(LOCAL_SETTINGS) as local_config:
         exec(local_config.read())
@@ -54,4 +82,3 @@ WEBHOOK_KEYS = {
 
 DB_URL_TEMPLATE = '{DRIVER}://{USER}:{PASSWORD}@{HOST}/{DATABASE}'
 A_DB_URL = DB_URL_TEMPLATE.format(DRIVER='postgresql+asyncpg', **DB_CONNECTION)
-
