@@ -51,6 +51,8 @@
         state: directory
       loop:
         - "{{ remote_user_home_dir }}"
+        - "{{ remote_user_home_dir }}var"
+        - "{{ remote_user_home_dir }}var/logs"
         - "{{ remote_project_path }}requirements"
 
 - name: Copy mailkeeper local_config file
