@@ -70,3 +70,7 @@ LOGGING = {
         }
     }
 }
+
+{% if email_host %}
+EMAIL_HOST = '{{ email_host }}'
+{% endif %}

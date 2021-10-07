@@ -18,6 +18,12 @@ mail_db_name: mailkeeper
 user_db_password: "123456"
 gunicorn_bind_address: "192.168.122.102:8003"
 
+# IP address allowed to send email through
+additional_mail_ip: 192.168.122.102
+
+# EMAIL_HOST for django settings
+email_host: 192.168.122.101
+
 rabbitmq_user: "{{ remote_project_user }}"
 rabbitmq_user_password: "123456"
 rabbitmq_queue_name: emails
