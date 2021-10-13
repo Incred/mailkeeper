@@ -92,6 +92,7 @@ class MainHandler:
                     'recipient: %s\n', msg_id, delivery_status, recipient)
             logger.info('Process bounced: Message-ID: %s, Recipient: %s, '
                         'Status: %s', msg_id, recipient, delivery_status)
+            self.data['bounce_reason'] = delivery_status
             async with self.db.session() as session:
                 await session.execute(update(Email).where(and_(
                     Email.message_id == msg_id,
