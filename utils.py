@@ -37,9 +37,8 @@ class EmailParser():
                 continue
             for mime_type in MIME_TYPES:
                 if part.get_content_type() == MIME_TYPES[mime_type]:
-                    self.data[mime_type] = MIME_TYPES[mime_type] + '\n'
-                    self.data[mime_type] += part.get_payload().replace('\r',
-                                                                       '')
+                    self.data[mime_type] = part.get_payload().replace('\r',
+                                                                      '')
 
     def _clean_varp(self, to):
         match = VERP_ADDRESS_RE.search(to)
@@ -65,6 +64,11 @@ class EmailParser():
         self.data['_id'] = unquote(self.raw_content.get('message-id').strip())
         self.data['raw_content'] = self.raw_content.as_string()
         self._parse_body()
+        content_type = 'text'
+        if self.data.get('html'):
+            content_type = 'html'
+        self.data['body'] = '\n'.join((MIME_TYPES[content_type],
+                                       self.data.get(content_type)))
 
 
 class BouncedEmailParser(EmailParser):

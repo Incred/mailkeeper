@@ -19,7 +19,7 @@ class Consumer:
             created=datetime.now(UTC),
             sender=data['from_email'],
             recipient=data['email'],
-            body=data.get('html') or data.get('text'),
+            body=data.pop('body'),
             raw_content=data['raw_content'],
             subject=data['subject'],
             inbound=data['event'] == 'inbound',
