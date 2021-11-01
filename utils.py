@@ -59,9 +59,10 @@ class EmailParser():
         tos = self._get_to()
         self.data['email'] = self.raw_content.get('x-original-to') or tos[0]
         self.data['to'] = [tos]
-        self.data['subject'] = self.raw_content.get('subject')
+        self.data['subject'] = self.raw_content.get('subject', '')
         self.data['from_email'] = self.raw_content.get('from')
-        self.data['_id'] = unquote(self.raw_content.get('message-id').strip())
+        self.data['_id'] = unquote(
+            self.raw_content.get('message-id', '').strip())
         self.data['raw_content'] = self.raw_content.as_string()
         self._parse_body()
         content_type = 'text'
