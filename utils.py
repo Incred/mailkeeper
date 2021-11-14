@@ -1,10 +1,9 @@
+import base64
 import re
 
 from email import policy, message_from_string
 from email.parser import Parser
 from email.utils import getaddresses, unquote
-import collections.abc
-from math import ceil
 
 
 """
@@ -37,8 +36,15 @@ class EmailParser():
                 continue
             for mime_type in MIME_TYPES:
                 if part.get_content_type() == MIME_TYPES[mime_type]:
-                    self.data[mime_type] = part.get_payload().replace('\r',
-                                                                      '')
+                    self.data[mime_type] = self._get_payload(part)
+
+    def _get_payload(self, part):
+        # Check if content is encoded
+        if part.get('Content-Transfer-Encoding', '').lower() == 'base64':
+            content = base64.b64decode(part.get_payload()).decode()
+        else:
+            content = part.get_payload()
+        return content.replace('\r', '')
 
     def _clean_varp(self, to):
         match = VERP_ADDRESS_RE.search(to)
